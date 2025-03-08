@@ -2,6 +2,8 @@ package routes
 
 import (
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -11,6 +13,12 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		//in the future make this the actual webserver domain
+		origin := r.Header.Get("Origin")
+		fmt.Println(origin)
+		return origin == "http://127.0.0.1:8080" || origin == "http://localhost:8080"
+	},
 }
 
 func create_websocket(c *gin.Context) {
@@ -22,5 +30,13 @@ func create_websocket(c *gin.Context) {
 		return
 	}
 	defer conn.Close()
-	conn.WriteMessage(websocket.TextMessage, []byte("Hello!!!!"))
+	it := 0
+	for {
+		it++
+		conn.WriteMessage(websocket.TextMessage, []byte("Hello!!!!"))
+		time.Sleep(time.Second)
+		if it == 300 {
+			break
+		}
+	}
 }
