@@ -3,10 +3,10 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/jaximus808/capy_websocket/internal/service/multiplayer"
 )
 
 // finish vid here
@@ -30,13 +30,21 @@ func create_websocket(c *gin.Context) {
 		return
 	}
 	defer conn.Close()
-	it := 0
+
+	conn_id := multiplayer.AddClient(conn)
+	defer multiplayer.RemoveClient(conn_id)
+	//lol wtf is this
 	for {
-		it++
-		conn.WriteMessage(websocket.TextMessage, []byte("Hello!!!!"))
-		time.Sleep(time.Second)
-		if it == 300 {
-			break
+		//messages should not include the author id, as they will be known by the server
+		mt, message, err := conn.ReadMessage()
+		if err != nil {
+			fmt.Print("client disconnected of id: ", conn_id, err)
+			return
+		}
+		if mt == websocket.BinaryMessage {
+			multiplayer.HandleMessage(message, conn_id)
 		}
 	}
 }
+
+// I need to mkae a multiplayer server to game oinstance bridge that allows me to talk to each other without the need to byte convert
