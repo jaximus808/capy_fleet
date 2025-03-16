@@ -21,14 +21,14 @@ func CreateEventBus() *EventBus {
 }
 
 func (eb *EventBus) Publish(event_name string, event *Event) error {
+
 	eb.mut.Lock()
 	defer eb.mut.Unlock()
 	subscribers, ok := eb.events[event_name]
 
 	if ok {
-
 		for _, subscriber := range subscribers {
-			subscriber(event)
+			go subscriber(event)
 		}
 		return nil
 	}
@@ -48,10 +48,15 @@ func (eb *EventBus) Subscribe(event_name string, callback func(*Event) error) {
 }
 
 func CreateEvent() *Event {
-	return &Event{}
+
+	return &Event{
+		data: &map[string]interface{}{},
+	}
 }
 func CreateEventAction(action Action) *Event {
-	new_event := &Event{}
+	new_event := &Event{
+		data: &map[string]interface{}{},
+	}
 	new_event.Add("packet", action)
 	return new_event
 }

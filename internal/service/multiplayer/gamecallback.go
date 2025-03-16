@@ -2,6 +2,7 @@ package multiplayer
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gorilla/websocket"
 	"github.com/jaximus808/capy_websocket/internal/service/bridge"
@@ -22,14 +23,18 @@ func SendPacket(event *bridge.Event) error {
 
 	targets := action.GetTargets()
 
+	//need to put flags for debug mode
 	switch action.GetSpecialTarget() {
 
 	case 0:
 		for _, target := range targets {
 			client, client_exist := clients[target]
+
 			if !client_exist {
 				continue
 			}
+
+			fmt.Println("sending packet to: ", target)
 			client.conn.WriteMessage(websocket.BinaryMessage, action.GetPacket().GetBuffer())
 		}
 	case 1:

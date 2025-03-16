@@ -31,9 +31,12 @@ func create_websocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	fmt.Println("connected?")
 	conn_id := multiplayer.AddClient(conn)
-	defer multiplayer.RemoveClient(conn_id)
+	//defer multiplayer.RemoveClient(conn_id)
+
 	//lol wtf is this
+
 	for {
 		//messages should not include the author id, as they will be known by the server
 		mt, message, err := conn.ReadMessage()

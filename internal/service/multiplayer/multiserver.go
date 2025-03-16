@@ -1,6 +1,7 @@
 package multiplayer
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gorilla/websocket"
@@ -31,10 +32,23 @@ func AddClient(conn *websocket.Conn) uint {
 	create_event.Add("uid", cur_id)
 	create_event.Add("name", "test_"+strconv.Itoa(int(cur_id)))
 
+	test_welcome := bridge.CreateEvent()
+	test_welcome.Add("uid", cur_id)
+
+	err := event_bus.Publish("welcome_msg", test_welcome)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	//event_bus.Publish("create_user", create_event)
+
 	cur_id++
 	return cur_id - 1
 }
 func RemoveClient(cur_id uint) {
+	create_event := bridge.CreateEvent()
+	create_event.Add("uid", cur_id)
+	event_bus.Publish("disconnect_user", create_event)
 	delete(clients, cur_id)
 }
 

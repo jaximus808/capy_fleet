@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"math"
 )
 
 type Packet struct {
@@ -122,7 +123,7 @@ func (p *Packet) WriteInt32(data int32) error {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.BigEndian, data)
 	if err == nil {
-		p.buffer = append(p.buffer, buf.Bytes()...)
+		binary.BigEndian.PutUint32(p.buffer[p.cursize:], uint32(data))
 		p.cursize += 4
 	}
 
@@ -137,7 +138,7 @@ func (p *Packet) WriteInt64(data int64) error {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.BigEndian, data)
 	if err == nil {
-		p.buffer = append(p.buffer, buf.Bytes()...)
+		binary.BigEndian.PutUint64(p.buffer[p.cursize:], uint64(data))
 		p.cursize += 8
 	}
 
@@ -151,7 +152,7 @@ func (p *Packet) WriteFloat32(data float32) error {
 	buf := new(bytes.Buffer)
 	err := binary.Write(buf, binary.BigEndian, data)
 	if err == nil {
-		p.buffer = append(p.buffer, buf.Bytes()...)
+		binary.BigEndian.PutUint32(p.buffer[p.cursize:], math.Float32bits(data))
 		p.cursize += 4
 	}
 
@@ -166,7 +167,7 @@ func (p *Packet) WriteFloat64(data float64) error {
 	err := binary.Write(buf, binary.BigEndian, data)
 
 	if err == nil {
-		p.buffer = append(p.buffer, buf.Bytes()...)
+		binary.BigEndian.PutUint64(p.buffer[p.cursize:], math.Float64bits(data))
 		p.cursize += 8
 	}
 
@@ -180,12 +181,17 @@ func (p *Packet) WriteString(data string) error {
 		return errors.New("packet out of space")
 	}
 	err := p.WriteInt32(int32(buf_len))
-	p.buffer = append(p.buffer, buf...)
+
+	//fmt.Println(buf)
+	//p.buffer = append(p.buffer, buf...)
+	copy(p.buffer[p.cursize:], buf)
 	p.cursize += uint(buf_len)
+
+	//fmt.Println(p.buffer)
 
 	return err
 }
 func (p *Packet) HasCapcity(offset uint) bool {
-	return p.capacity <= p.cursize+offset
+	return p.capacity > p.cursize+offset
 
 }

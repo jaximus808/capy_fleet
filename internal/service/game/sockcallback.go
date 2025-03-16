@@ -15,8 +15,24 @@ const (
 
 func HandleEvents() {
 
+	eventbus.Subscribe("welcome_msg", WelcomeMsg)
 	eventbus.Subscribe("create_user", CreateUser)
 	eventbus.Subscribe("disconnect_user", RemoveUser)
+
+}
+
+func WelcomeMsg(event *bridge.Event) error {
+
+	data := *event.GetData()
+	id, id_exists := data["uid"].(uint)
+
+	if !id_exists {
+		return errors.New("user doesn't exists")
+	}
+	welcome_packet := createWelcomePacket(int64(id))
+
+	BroadcastToClient(id, welcome_packet)
+	return nil
 
 }
 
@@ -42,6 +58,9 @@ func CreateUser(event *bridge.Event) error {
 	new_packet := createJoinPacket(new_player)
 
 	BroadcastToAll(new_packet)
+
+	//should I send all the game info here?
+	// I think maybe make a seperate event to give game info to the player
 	return nil
 }
 

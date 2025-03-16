@@ -15,6 +15,8 @@ var eventbus *bridge.EventBus
 var tick_rate = time.Second / 30
 
 func SpinUpGame(action_queue *bridge.Queue, event_bus *bridge.EventBus) {
+
+	fmt.Println("spinning up game server")
 	eventbus = event_bus
 	HandleEvents()
 	//tick rate set to 30, maybe make this a parameter
@@ -30,9 +32,7 @@ func SpinUpGame(action_queue *bridge.Queue, event_bus *bridge.EventBus) {
 				return
 			}
 			ActionCallback(&action)
-			fmt.Print(action.GetPacket())
 		}
-
 		for _, player := range players {
 			player.Update()
 		}
@@ -42,7 +42,11 @@ func SpinUpGame(action_queue *bridge.Queue, event_bus *bridge.EventBus) {
 func BroadcastToClient(client_id uint, packet *bridge.Packet) {
 	action := bridge.CreateAction(SERVER_ID, packet)
 	action.AddTarget(client_id)
-	eventbus.Publish("packet_send", bridge.CreateEventAction(*action))
+	err := eventbus.Publish("packet_send", bridge.CreateEventAction(*action))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 }
 func BroadcastToClients(client_ids []uint, packet *bridge.Packet) {
 	action := bridge.CreateAction(SERVER_ID, packet)
