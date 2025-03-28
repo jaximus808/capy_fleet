@@ -30,6 +30,8 @@ func createGameInfoPacket(local_id uint) *bridge.Packet {
 	// this will be called between zones
 
 	new_packet.WriteInt32(int32(gameworld_info))
+
+	new_packet.WriteInt32(int32(local_id))
 	new_packet.WriteInt32(int32(player_count))
 
 	for p_id, player := range players {
@@ -38,8 +40,6 @@ func createGameInfoPacket(local_id uint) *bridge.Packet {
 		new_packet.WriteFloat64(player.pos.X())
 		new_packet.WriteFloat64(player.pos.Y())
 	}
-
-	new_packet.WriteInt32(int32(local_id))
 
 	return new_packet
 }

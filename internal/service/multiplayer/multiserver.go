@@ -38,7 +38,6 @@ func AddClient(conn *websocket.Conn) uint {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	//event_bus.Publish("create_user", create_event)
 
 	cur_id++
 	return cur_id - 1
@@ -47,6 +46,7 @@ func RemoveClient(cur_id uint) {
 	create_event := bridge.CreateEvent()
 	create_event.Add("uid", cur_id)
 	event_bus.Publish("disconnect_user", create_event)
+	fmt.Println("discoonnecting user:", cur_id)
 	delete(clients, cur_id)
 }
 

@@ -26,8 +26,6 @@ func ActionCallback(action *bridge.Action) error {
 		return errors.New("invalid packet id")
 	}
 
-	fmt.Println("got packet with id:", gameinput_id)
-
 	gameplay_err := gameplay_func(packet, author_id)
 	if gameplay_err != nil {
 		fmt.Println(gameplay_err.Error())

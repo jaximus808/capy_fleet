@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/jaximus808/capy_websocket/utils"
@@ -42,24 +41,14 @@ func (p *Player) Update(deltaTime time.Duration) {
 	if p.moving {
 
 		initial_dir := p.pos.VecTowards(p.target_pos)
-		// fmt.Println("MOvING")
-		// fmt.Println(float64(deltaTime.Seconds()))
-		// fmt.Println(initial_dir.X())
-		// fmt.Println(initial_dir.Y())
 		vel_vec := initial_dir.Scalec(p.speed * float64(deltaTime.Seconds()))
 
-		// fmt.Println(vel_vec.X())
-		// fmt.Println(vel_vec.Y())
 		p.pos.Add(vel_vec)
+		//if the dot between our inittial direction and the new direction from moving is -1, then the target position is behind the player and has made it
+		if p.pos.VecTowards(p.target_pos).Dot(initial_dir) < 0 || vel_vec.Mag() == 0 {
 
-		//if the direction has changed, meaning the movement made the capy go past the point, then we've passed it
-		if p.pos.Dist(p.target_pos) < 0.5 || vel_vec.Mag() == 0 {
-
-			fmt.Println("made it!")
-			fmt.Println(p.target_pos)
 			p.pos.Set(p.target_pos)
 			p.moving = false
-			fmt.Println(p.target_pos)
 		}
 		movement_packet := createMovePacket(p)
 		BroadcastToAll(movement_packet)

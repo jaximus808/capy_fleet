@@ -52,7 +52,6 @@ func Ready(packet *bridge.Packet, author_id uint) error {
 // make a player speed, and then move the player towrads the target at a set speed lol
 func NewMoveTarget(packet *bridge.Packet, author_id uint) error {
 
-	fmt.Println("EREAX BITCH")
 	target_pos_x, err1 := packet.ReadFloat64()
 	target_pos_y, err2 := packet.ReadFloat64()
 	if err1 != nil {
@@ -71,6 +70,5 @@ func NewMoveTarget(packet *bridge.Packet, author_id uint) error {
 	target_vec := utils.Vector2(target_pos_x, target_pos_y)
 
 	player.SetNewMoveVector(target_vec)
-	fmt.Println("MOVING BITCH")
 	return nil
 }
