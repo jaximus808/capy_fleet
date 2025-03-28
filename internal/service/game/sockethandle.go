@@ -2,6 +2,7 @@ package game
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/jaximus808/capy_websocket/internal/service/bridge"
 )
@@ -25,6 +26,12 @@ func ActionCallback(action *bridge.Action) error {
 		return errors.New("invalid packet id")
 	}
 
-	return gameplay_func(packet, author_id)
+	fmt.Println("got packet with id:", gameinput_id)
+
+	gameplay_err := gameplay_func(packet, author_id)
+	if gameplay_err != nil {
+		fmt.Println(gameplay_err.Error())
+	}
+	return gameplay_err
 
 }

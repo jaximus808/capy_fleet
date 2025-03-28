@@ -13,7 +13,8 @@ func HandleEvent() {
 }
 
 func SendPacket(event *bridge.Event) error {
-
+	websocket_mut.Lock()
+	defer websocket_mut.Unlock()
 	data := *event.GetData()
 	action, action_exist := data["packet"].(bridge.Action)
 
@@ -24,6 +25,8 @@ func SendPacket(event *bridge.Event) error {
 	targets := action.GetTargets()
 
 	//need to put flags for debug mode
+	//make an enum for this
+	//TODO: fix jitterring
 	switch action.GetSpecialTarget() {
 
 	case 0:

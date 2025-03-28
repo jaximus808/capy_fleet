@@ -2,7 +2,7 @@ package multiplayer
 
 import (
 	"fmt"
-	"strconv"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/jaximus808/capy_websocket/internal/service/bridge"
@@ -14,6 +14,7 @@ var out_queue bridge.Queue = *bridge.CreateQueue(256) //multi server writes to t
 //var in_queue bridge.Queue = *bridge.CreateQueue(256) //deprecated prob dont need // multi server reads this
 
 var event_bus bridge.EventBus = *bridge.CreateEventBus() //this handles data sent between threads that are server auth actions, such as connecting etc
+var websocket_mut = sync.Mutex{}
 
 // server id is reserved as 0
 var cur_id uint = 1
@@ -28,14 +29,11 @@ func AddClient(conn *websocket.Conn) uint {
 	clients[cur_id] = CreateClient(conn, cur_id)
 
 	//tell game server to add the player
-	create_event := bridge.CreateEvent()
-	create_event.Add("uid", cur_id)
-	create_event.Add("name", "test_"+strconv.Itoa(int(cur_id)))
 
-	test_welcome := bridge.CreateEvent()
-	test_welcome.Add("uid", cur_id)
+	welcome_msg := bridge.CreateEvent()
+	welcome_msg.Add("uid", cur_id)
 
-	err := event_bus.Publish("welcome_msg", test_welcome)
+	err := event_bus.Publish("welcome_msg", welcome_msg)
 
 	if err != nil {
 		fmt.Println(err.Error())

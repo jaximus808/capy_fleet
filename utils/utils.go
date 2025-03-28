@@ -70,14 +70,21 @@ func (v *Vec2) Dot(other_v *Vec2) float64 {
 	return other_v.x*v.x + other_v.y*v.y
 }
 func (v *Vec2) Mag() float64 {
-	return math.Sqrt(v.x*v.x + v.y + v.y)
+	return math.Sqrt(v.x*v.x + v.y*v.y)
 }
 func (v *Vec2) Norm() *Vec2 {
 	mag := v.Mag()
-	return &Vec2{
+	t_v := &Vec2{
 		x: v.x / mag,
 		y: v.y / mag,
 	}
+	if math.IsNaN(t_v.x) {
+		t_v.x = 0
+	}
+	if math.IsNaN(t_v.y) {
+		t_v.y = 0
+	}
+	return t_v
 }
 
 // creates a normalized vector that points to another vec
@@ -87,6 +94,11 @@ func (v *Vec2) VecTowards(other_v *Vec2) *Vec2 {
 		other_v.y-v.y,
 	)
 	return non_norm.Norm()
+}
+func (v *Vec2) Dist(other_v *Vec2) float64 {
+	_x := v.x - other_v.x
+	_y := v.y - other_v.y
+	return math.Sqrt(_x*_x + _y*_y)
 }
 
 func (v *Vec2) Equals(other_v *Vec2) bool {

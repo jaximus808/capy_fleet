@@ -7,7 +7,7 @@ import (
 	"github.com/jaximus808/capy_websocket/internal/service/bridge"
 )
 
-var players map[uint]Player
+var players map[uint]*Player
 
 const SERVER_ID uint = 0
 
@@ -20,7 +20,7 @@ func SpinUpGame(action_queue *bridge.Queue, event_bus *bridge.EventBus) {
 	eventbus = event_bus
 	HandleEvents()
 	//tick rate set to 30, maybe make this a parameter
-
+	players = make(map[uint]*Player)
 	ticker := time.NewTicker(tick_rate)
 	defer ticker.Stop()
 
@@ -34,7 +34,7 @@ func SpinUpGame(action_queue *bridge.Queue, event_bus *bridge.EventBus) {
 			ActionCallback(&action)
 		}
 		for _, player := range players {
-			player.Update()
+			player.Update(tick_rate)
 		}
 	}
 }
